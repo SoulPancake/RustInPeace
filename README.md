@@ -1,0 +1,2 @@
+# RustInPeace
+Learning Rust here
