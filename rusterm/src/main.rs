@@ -1,4 +1,8 @@
 use dialoguer::{theme::ColorfulTheme, Select, Input};
+use std::net::{IpAddr, Ipv4Addr};
+use std::time::Duration;
+use ping_rs::{PingOptions, send_ping};
+use dns_lookup::{lookup_host};
 
 fn main() {
     let top_domains = [
@@ -42,8 +46,27 @@ fn main() {
                     custom_domain
                 };
 
-                println!("Pinging {}...", domain);
-            },
+                let ips = match lookup_host(&domain) {
+                    Ok(ips) => ips,
+                    Err(_) => {
+                        eprintln!("Failed to lookup host {}", domain);
+                        continue;
+                    }
+                };
+
+                let addr = ips.into_iter().next().unwrap_or_else(|| IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)));
+
+                let data = [1, 2, 3, 4]; // ping data
+                let timeout = Duration::from_secs(1);
+                let options = PingOptions { ttl: 128, dont_fragment: true };
+
+                match send_ping(&addr, timeout, &data, Some(&options)) {
+                    Ok(reply) => {
+                        println!("Reply from {}: bytes={} time={}ms TTL={}", reply.address, data.len(), reply.rtt, options.ttl)
+                    }
+                    Err(e) => println!("Ping to {} failed: {:?}", domain, e),
+                }
+            }
             2 => println!("Checking internet speed..."),
             3 => break,
             _ => println!("Invalid option, please try again."),
