@@ -1,11 +1,23 @@
-use std::env;
+use dialoguer::{theme::ColorfulTheme, Select};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    loop {
+        let selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Select an option:")
+            .items(&["Say hello", "Ping", "Check internet speed", "Exit"])
+            .default(0)
+            .interact()
+            .unwrap();
 
-    if args.len() > 1 {
-        println!("You entered: {}", &args[1]);
-    } else {
-        println!("Please enter a value as a command-line argument.");
+        match selection {
+            0 => println!("ฅ^•ﻌ•^ฅ Hello!"),
+            1 => println!("Pinging..."),
+            2 => println!("Checking internet speed..."),
+            3 => {
+                println!("Exiting program.");
+                break;
+            }
+            _ => println!("Invalid option, please try again."),
+        }
     }
 }
