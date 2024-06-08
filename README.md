@@ -1,2 +1,1 @@
-# RustInPeace
-Learning Rust here
+![CarnivalOfRust](image.png)
